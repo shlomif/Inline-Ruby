@@ -2,7 +2,7 @@ INTRODUCTION
 
 Inline::Ruby -- Write Perl subs and classes in Ruby.
 
-Inline::Ruby lets you write Perl subroutines and classes in Python. It
+Inline::Ruby lets you write Perl subroutines and classes in Ruby. It
 dynamically translates the parameters and return values into native data types
 for both languages -- and it knows how to "wrap" most other types of data.
 
@@ -27,7 +27,7 @@ addition, you need Ruby 1.6.3 or greater installed. (Ruby version down to
 1.6.0 will probably work, but the lowest tested version is 1.6.3.) The current
 stable version of Ruby, version 1.6.6, is recommended.
 
-To install Inline::Python do this:
+To install Inline::Ruby do this:
 
 perl Makefile.PL
 make

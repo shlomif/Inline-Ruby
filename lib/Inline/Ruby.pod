@@ -28,7 +28,7 @@ interpreter, runs your code, and then examines Ruby's symbol table, looking
 for things to bind to Perl.
 
 The process of interrogating the Ruby interpreter only occurs the first time
-you run your Python code. The namespace is cached, and subsequent calls use
+you run your Ruby code. The namespace is cached, and subsequent calls use
 the cached version. Of course, your Ruby code must still be run every time
 your run the Perl script -- but Inline::Ruby already knows the results of
 running it.
@@ -505,7 +505,7 @@ are replaced with C<nil> and translated to C<undef>.
 
 Object
 
-Ruby objects are wrapped in instances of the C<Inline::Python::Object> class.
+Ruby objects are wrapped in instances of the C<Inline::Ruby::Object> class.
 This allows Perl to call methods on the object as usual.
 
 =item 2
