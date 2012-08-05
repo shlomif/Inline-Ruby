@@ -47,7 +47,11 @@ sub test_exception {
 test_exception( sub {
         my $x = 0;
         my $y = 1;
-        return $y/$x;
+        my $z;
+        # TODO : This eval + rethrow with die is the only way to get it to
+        # work. But why?
+        eval { $z = $y/$x; };
+        die $@;
     });
 
 test_exception( sub {
