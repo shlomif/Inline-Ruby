@@ -1,17 +1,19 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
-use Test;
-BEGIN { plan tests => 3 }
+use warnings;
 
-# Bind only to classes
+use Test::More tests => 2;
+
+# Bind only to functions
 use Inline RUBY => 'DATA', BIND_TYPE => [undef, 'functions'];
-ok(1);
 
 eval { my $obj = Smell->new };
-ok($@);
+# TEST
+ok ($@, 'Unknown object Smell');
 
-ok(some_func(), "bound");
+# TEST
+is (some_func(), "bound", "some_func() exists and returns.");
 
 __END__
 __RUBY__
