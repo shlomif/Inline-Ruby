@@ -192,7 +192,7 @@ def inline_ruby_class_grokker(*classes)
 	ObjectSpace.each_object(Module) do |x|
 	    yield ['modules', x.name]
 	end
-	Kernel.private_methods.each do |x|
+	Kernel.methods.each do |x|
 	    yield ['functions', x]
 	end
     else
