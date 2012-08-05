@@ -1,18 +1,21 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
-use Test;
-BEGIN { plan tests => 3 }
-
-use Inline Ruby;
 use strict;
+use warnings;
 
-sub a {
+use Test::More tests => 3;
+
+use Inline 'Ruby';
+
+sub my_a_func {
     my ($i, $n) = @_;
-    ok($i);
-    print "Elapsed: $n\n";
+
+    # TEST*3
+    ok ($i, "Test");
+    # print "Elapsed: $n\n";
 }
 
-invoke_wait(0.1, \&a, \&{"main::a"}, \&a);
+invoke_wait(0.1, \&my_a_func, \&{"main::my_a_func"}, \&my_a_func);
 
 __END__
 __Ruby__
@@ -23,7 +26,6 @@ def invoke_wait(t, *procs)
   procs.each { |pr|
     i = i + 1
     n = n + sleep(t)
-    p pr
     pr.call(i, n)
   }
 end
