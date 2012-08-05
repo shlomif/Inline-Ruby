@@ -1,17 +1,16 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
-use Test;
-BEGIN { plan tests => 3 }
+use warnings;
+use Test::More tests => 2;
 
 use Inline Ruby => 'DATA', REGEX => qr/^pl_/;
-ok(1);
 
-my $a = eval { pl_entry_point() };
-ok($a, 0);
+my $x = eval { pl_entry_point() };
+is ($x, 0, "pl_entry_point was imported.");
 
-my $b = eval { entry_point() };
-ok($@);
+my $b = eval { other_func() };
+ok ($@, "Exception was thrown.");
 
 __END__
 __Ruby__
