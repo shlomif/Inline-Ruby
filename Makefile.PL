@@ -79,7 +79,7 @@ WriteMakefile(
 );
 
 #============================================================================
-# Asks the ruby interpreter what libraries we need, where its include 
+# Asks the ruby interpreter what libraries we need, where its include
 # directories are, etc.
 #============================================================================
 sub interrogate {
@@ -87,11 +87,11 @@ sub interrogate {
     $ref->{syslibs} = get_config_var($ref, "LIBS");
     $ref->{libruby} = get_config_var($ref, "LIBRUBY");
 
-    # Ruby 1.6.4 supports archdir, which is what we need. But 1.6.3 (the 
+    # Ruby 1.6.4 supports archdir, which is what we need. But 1.6.3 (the
     # earliest version I have) doesn't, so we should build it ourselves.
     $ref->{incpath} = $ref->{libpath} = get_config_var($ref, "archdir");
     if ($ref->{incpath} eq 'nil') {
-	$ref->{incpath} = $ref->{libpath} = 
+	$ref->{incpath} = $ref->{libpath} =
 	  join '/', (get_config_var($ref, "libdir"),
 		     "ruby",
 		     (join '.', get_config_var($ref, "MAJOR"),
