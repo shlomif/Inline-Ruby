@@ -23,10 +23,16 @@
  *   \__ my_error_trap				===> throws Perl exception
  *==========================================================================*/
 
+/* perl stuff */
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+
 #include "rb2pl.h"
 #ifdef	EXPOSE_PERL
 # include "perlmodule.h"
 #endif
+
 
 /*============================================================================
  * This macro creates and fills a ruby array from the Perl call stack. It
@@ -93,7 +99,15 @@ do_rbinit() {
 
     /* Allow loading of dynamic libraries */
     ruby_init_loadpath();
+    /* #if-ing out because maybe no longer needed and not supported in
+     * recent MRIs:
+     *
+     * http://my.opera.com/subjam/blog/embedding-ruby-in-c-programs
+     *
+     * */
+#if 0
     Init_ext();
+#endif
 
     /* Set up our own types */
     Init_PerlException();
@@ -111,7 +125,6 @@ my_iter_it(fake)
     VALUE fake;
 {
     VALUE obj, method, args;
-    ID method_id;
 
     Printf(("Note: in my_iter_it(%p)\n", fake));
     Printf(("Type: TYPE(fake) = %i\n", TYPE(fake)));
@@ -127,6 +140,22 @@ my_iter_it(fake)
     Printf(("============================\n"));
     return rb_funcall2(obj, rb_intern(STR2CSTR(method)),
 		       RARRAY(args)->len, RARRAY(args)->ptr);
+}
+
+/*
+ * This function was contributed by mauke.
+ */
+static void my_do_chomp(SV * sv)
+{
+    char * p;
+    STRLEN n;
+
+    p = SvPV_force(sv, n);
+    if (n && p[n - 1] == '\n')
+    {
+        n--; p[n] = '\0';
+        SvCUR_set(sv, n);
+    }
 }
 
 /*============================================================================
@@ -187,7 +216,7 @@ my_iter_bl(res, cv)
 	POPs;
 
 	/* stringify the Perl error into the Ruby error */
-	do_chomp(ERRSV);
+	my_do_chomp(ERRSV);
 	rb_raise(rb_ePerlException, SvPV_nolen(ERRSV));
 	return Qnil;	/* not reached */
     }
@@ -289,7 +318,7 @@ my_error_wrapper(arg)
     }
     /* If we get here, there were no exceptions */
     Printf(("No exceptions thrown, clearing ERRSV!\n"));
-    sv_setpvf(ERRSV, "");
+    sv_setpvf(ERRSV, "%s", "");
     return retv;
 }
 
@@ -318,7 +347,6 @@ call_ruby_method(obj, method, iter, argv)
 {
     VALUE	wrap_argv;
     VALUE	rb_retval;
-    SV*		pl_retval;
 
     Printf(("call_ruby_method(%p, '%s', %p)\n", obj, method, iter));
 

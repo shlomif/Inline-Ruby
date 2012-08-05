@@ -10,7 +10,7 @@ use Test;
 use Data::Dumper;
 BEGIN { plan tests => 15 }
 END {print "not ok 1\n" unless $loaded;}
-use Inline Ruby;
+use Inline 'Ruby';
 $loaded = 1;
 print "ok 1\n";
 

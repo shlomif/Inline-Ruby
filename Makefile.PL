@@ -3,6 +3,13 @@ use Config;
 use ExtUtils::MakeMaker;
 use Getopt::Long;
 
+# Taken from Compress-Raw-Lzma's Makefile.PL
+my $WALL= '';
+if ($Config{'cc'} =~ /gcc/)
+{
+    $WALL = ' -Wall -Wno-comment ';
+}
+
 GetOptions(
 	   'gdb:s' => \$gdb,
 	   debug => \$debug,
@@ -61,7 +68,7 @@ END
 #============================================================================
 # Finalize, and write the makefile
 #============================================================================
-$defs = join ' ', qw(-UEXPOSE_PERL -DCREATE_RUBY -UCREATE_PERL),
+$defs = join ' ', $WALL, qw(-UEXPOSE_PERL -DCREATE_RUBY -UCREATE_PERL),
 	$debug ? "-DI_RB_DEBUG" : ();
 
 WriteMakefile(
