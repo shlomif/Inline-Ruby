@@ -54,7 +54,7 @@ class Stumpme
   def Stumpme.class_method(*args)
     args.each { |x| print "ok #{x}\n" ; $stdout.flush; }
   end
-  def inst_iterator(*args) 
+  def inst_iterator(*args)
     args.each { |x| yield x }	# calls back into Perl
   end
   def Stumpme.class_iterator(*args)
