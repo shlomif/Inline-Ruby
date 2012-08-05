@@ -7,14 +7,8 @@ use strict;
 use Data::Dumper;
 use Inline::Ruby qw(rb_eval);
 
-my @exc = (
-    ['divided by 0', 'ZeroDivisionError'],
-    ["compile error\n(eval): parse error", 'SyntaxError'],
-);
-
-my $n = 0;
 sub e {
-    my $str = shift;
+    my ($str, $exc) = @_;
     eval { rb_eval($str) };
     return unless $@;
     my $x = $@;
@@ -22,10 +16,10 @@ sub e {
     my $inspect = sprintf("#<%s: %s>", $x->type, $x->message);
 
     # Methods:
-    ok($x->message, $exc[$n][0]);
+    ok($x->message, $exc->[0]);
     print Dumper $x->message;
 
-    ok($x->type, $exc[$n][1]);
+    ok($x->type, $exc->[1]);
     print Dumper $x->type;
 
     ok($x->inspect, $inspect);
@@ -37,9 +31,14 @@ sub e {
 
     # Backtrace (not tested)
     print Dumper $x->backtrace;
-
-    $n++;
 }
 
-e "1/0";	# div by zero
-e "1/";		# parse error
+# div by zero
+e(  "1/0",
+    ['divided by 0', 'ZeroDivisionError']
+);
+
+# parse error
+e(  "1/",
+    ["compile error\n(eval): parse error", 'SyntaxError'],
+);
