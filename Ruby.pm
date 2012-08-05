@@ -266,9 +266,11 @@ sub build {
 	functions	=> [keys %{$post{functions} || {}}],
     );
 
-    warn "No functions or classes found!"
-      unless ((length @{$namespace{functions}}) > 0 and
-	      (length keys %{$namespace{classes}}) > 0);
+    if ((! @{$namespace{functions}})
+            and (! %{$namespace{classes}}))
+    {
+        warn "No functions or classes found!";
+    }
 
     # Cache the results
     require Inline::denter;
