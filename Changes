@@ -103,7 +103,7 @@ Revision history for Perl extension Inline-Ruby.
 
 0.01  Tue Jul 10 09:35:20 PDT 2001
 	- adding in stubs and code based on Inline::Python. The .pm file will
-	  probably be almost identical. The XS code will be the real 
+	  probably be almost identical. The XS code will be the real
 	  difference.
 
 0.01  Tue Jul 10 09:17:27 2001
