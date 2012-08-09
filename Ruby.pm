@@ -1,5 +1,8 @@
 package Inline::Ruby;
+
 use strict;
+use warnings;
+
 use Carp;
 require Inline;
 require DynaLoader;
@@ -107,9 +110,9 @@ sub add_list {
     my ($ref, $key, $value, $default) = @_;
     $value = [$value] unless ref $value;
     croak usage_validate($key) unless ref($value) eq 'ARRAY';
-    for (@$value) {
-	if (defined $_) {
-	    push @{$ref->{$key}}, $_;
+    foreach my $val (@$value) {
+	if (defined $val) {
+	    push @{$ref->{$key}}, $val;
 	}
 	else {
 	    $ref->{$key} = $default;
@@ -122,9 +125,9 @@ sub add_string {
     my ($ref, $key, $value, $default) = @_;
     $value = [$value] unless ref $value;
     croak usage_validate($key) unless ref($value) eq 'ARRAY';
-    for (@$value) {
-	if (defined $_) {
-	    $ref->{$key} .= ' ' . $_;
+    foreach my $val (@$value) {
+	if (defined $val) {
+	    $ref->{$key} .= " $val";
 	}
 	else {
 	    $ref->{$key} = $default;
@@ -137,10 +140,10 @@ sub add_text {
     my ($ref, $key, $value, $default) = @_;
     $value = [$value] unless ref $value;
     croak usage_validate($key) unless ref($value) eq 'ARRAY';
-    for (@$value) {
-	if (defined $_) {
-	    chomp;
-	    $ref->{$key} .= $_ . "\n";
+    for my $val (@$value) {
+	if (defined $val) {
+	    chomp($val);
+	    $ref->{$key} .= $val . "\n";
 	}
 	else {
 	    $ref->{$key} = $default;
@@ -232,12 +235,11 @@ sub build {
     # Select those things which sprang into existence after running the code:
     my @skip_clas = qw(PerlException PerlProc);
     my @skip_func = qw(inline_ruby_class_grokker);
-    for (@skip_clas) { delete $post{classes}{$_} }
-    for (@skip_func) { delete $post{functions}{$_} }
-    for (keys %{$pre{classes}}) { delete $post{classes}{$_} }
-    for (keys %{$pre{modules}}) { delete $post{modules}{$_} }
-    for (keys %{$pre{functions}}) { delete $post{functions}{$_} }
-    for (keys %{$post{classes}}) { delete $post{modules}{$_} }
+    delete @{ $post{classes} }{@skip_clas, keys(%{$pre{classes}})};
+    delete @{ $post{functions} }{@skip_func, keys(%{$pre{functions}})};
+    delete @{ $post{modules} }{
+        keys(%{$pre{modules}}), keys(%{$post{classes}})
+    };
 
     # Filter the results according to the {bindto} and {REGEXP} selections:
     for my $type (qw(classes modules functions)) {
@@ -282,13 +284,30 @@ sub build {
 
     $o->mkpath("$o->{API}{install_lib}/auto/$o->{API}{modpname}");
 
-    open RBDAT, "> $o->{API}{location}" or
-      croak "Inline::Ruby couldn't write parse information!";
-    print RBDAT $namespace;
-    close RBDAT;
+    {
+        open my $rbdat_fh, '>', $o->{API}{location}
+            or croak "Inline::Ruby couldn't write parse information!";
+        print {$rbdat_fh} $namespace;
+        close($rbdat_fh);
+    }
 
     $o->{ILSM}{namespace} = \%namespace;
     $o->{ILSM}{built}++;
+}
+
+sub _slurp
+{
+    my $filename = shift;
+
+    open my $in, '<', $filename
+        or croak "Cannot open '$filename' for slurping - $!";
+
+    local $/;
+    my $contents = <$in>;
+
+    close($in);
+
+    return $contents;
 }
 
 #==============================================================================
@@ -298,11 +317,7 @@ sub load {
     my $o = shift;
     return if $o->{ILSM}{loaded};
 
-    # Load the code
-    open RBDAT, $o->{API}{location} or 
-      croak "Couldn't open parse info!";
-    my $rbdat = join '', <RBDAT>;
-    close RBDAT;
+    my $rbdat = _slurp($o->{API}{location});
 
     require Inline::denter;
     my %rbdat = Inline::denter->new->undent($rbdat);
@@ -315,11 +330,15 @@ sub load {
     rb_eval($o->{ILSM}{code});
 
     # Bind it all
-    rb_bind_func("$o->{API}{pkg}::$_", $_)
-      for (@{ $o->{ILSM}{namespace}{functions} || [] });
-    rb_bind_class("$o->{API}{pkg}::$_", $_, $o->{ILSM}{ITER},
-		  %{$o->{ILSM}{namespace}{classes}{$_}})
-      for keys %{ $o->{ILSM}{namespace}{classes} || {} };
+    for my $func (@{ $o->{ILSM}{namespace}{functions} || [] })
+    {
+        rb_bind_func("$o->{API}{pkg}::$func", $func);
+    }
+    for my $class (keys %{ $o->{ILSM}{namespace}{classes} || {} })
+    {
+        rb_bind_class("$o->{API}{pkg}::$class", $class, $o->{ILSM}{ITER},
+            %{$o->{ILSM}{namespace}{classes}{$class}});
+    }
 
     # Bind the global function 'iter':
     eval <<END;
