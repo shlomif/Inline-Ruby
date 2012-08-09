@@ -1,5 +1,11 @@
 Revision history for Perl extension Inline-Ruby.
 
+0.02        Thu  9 Aug 22:42:29 IDT 2012
+    - RELEASE: Inline-Ruby-0.03
+    - Got the tests to pass with recent perls and Ruby-1.8.7.
+    - Some cleanups to Ruby.pm and the test suite.
+    - Moved test.pl under examples/inline-ruby-test.pl so it won't interfere.
+
 0.01 Sat Jan 12 00:14:11 PST 2002	@60
 	- RELEASE: Inline-Ruby-0.01
 	- Use $Config{path_sep} for splitting $ENV{PATH} in Makefile.PL
