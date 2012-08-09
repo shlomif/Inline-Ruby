@@ -788,6 +788,8 @@ They're mite evan bee spelyng mystaikz.
 
 =head1 AUTHOR
 
+Maintainer: Shlomi Fish, L<http://www.shlomifish.org> .
+
 Neil Watkiss <NEILW@cpan.org>
 
 =head1 COPYRIGHT
