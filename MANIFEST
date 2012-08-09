@@ -8,7 +8,7 @@ Ruby.xs
 rb2pl.c
 rb2pl.h
 samples/tk/tkhello.pl
-test.pl
+examples/inline-ruby-test.pl
 t/01basic.t
 t/02iter.t
 t/03bindfunc.t
