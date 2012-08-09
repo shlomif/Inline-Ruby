@@ -48,6 +48,12 @@ __END__
 __Ruby__
 
 class Stumpme
+  # This method does nothing important but happens to fix the call of
+  # inst_method() upon first run - I'll investigate the exact problem
+  # further -- Shlomi Fish
+  def myfunc()
+    return 3098;
+  end
   def inst_method(*args)
     args.each { |x| print "ok #{x}\n" ; $stdout.flush; }
   end
