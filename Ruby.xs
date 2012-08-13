@@ -89,6 +89,9 @@ do_rbinit() {
     char *argv[] = { "ruby" };
     int argc = sizeof(argv)/sizeof(argv[0]);
 
+#ifdef RUBY_INIT_STACK
+    RUBY_INIT_STACK;
+#endif
     /* set up the initial ruby interpreter */
     ruby_init();
 
@@ -252,15 +255,17 @@ my_error_trap(arg, error)
     VALUE	error;
 {
     dSP;
-    SV*	wrapper;
+    HV*	wrapper;
     SV*	ref;
+
+    wrapper = newHV();
 
     Printf(("Note: Ruby threw an exception!!!\n"));
     Printf(("Note: %s\n", STR2CSTR(rb_inspect(error))));
 
     /* Create a wrapper */
-    wrapper = newSViv((IV)error);
-    ref = newRV_noinc(wrapper);
+    (void)hv_store(wrapper, "_rb_exc", 7, newSViv((IV)error), 0);
+    ref = newRV_noinc((SV*)wrapper);
 
     /* Throw a Perl exception */
     ENTER;
@@ -382,6 +387,8 @@ MODULE = Inline::Ruby	PACKAGE = Inline::Ruby	PREFIX = my_
 BOOT:
 #ifdef	CREATE_RUBY
 do_rbinit();
+rb_gc_start(); /* important */
+rb_funcall(rb_stdout, rb_intern("sync="), 1, 1);
 #endif
 
 PROTOTYPES: DISABLE
@@ -433,6 +440,9 @@ my_rb_eval(str)
 	SV*	pl_retval;
     PPCODE:
 	Printf(("About to evaluate some Ruby code.\n"));
+#ifdef rb_set_errinfo
+    rb_set_errinfo(Qnil); /* reset GET_THREAD()->errinfo */
+#endif
 	pl_retval = rb2pl(rb_rescue2(&my_eval_string, rb_str_new2(str),
 				  &my_error_trap, Qnil, rb_eException, 0));
 	Printf(("Done.\n"));
@@ -564,11 +574,24 @@ DESTROY(obj)
         SV*	obj
     CODE:
 	if (isa_InlineRubyWrapper(obj)) {
-	    VALUE rb_object = UNWRAP_RUBY_OBJ(obj);
+        /*
+        XXX - this somehow conflicts with free_InlineRubyWrapper,
+        so it's commented out until we find a way to get them work together:
+
+ 	    VALUE rb_object = UNWRAP_RUBY_OBJ(obj);
+	    */
 	    /* talk to the ruby garbage collector */
 	}
 
 MODULE = Inline::Ruby	PACKAGE = Inline::Ruby::Exception
+
+#define RETRIEVE_CACHE(m) { \
+    SV **svp = hv_fetch(wrapper, m, strlen(m), FALSE); \
+    if (svp)                                           \
+        XSRETURN_PV(SvPV_nolen(*svp));                 \
+}
+
+#define STORE_CACHE(m, v) (void)hv_store(wrapper, m, strlen(m), v, 0)
 
 SV*
 message(obj)
@@ -577,42 +600,63 @@ message(obj)
 	Inline::Ruby::Exception::inspect	= 1
 	Inline::Ruby::Exception::backtrace	= 2
     PREINIT:
+	HV*     wrapper;
 	char*	method;
     CODE:
-	switch(ix) {
-	    case 0:
-		method = "message";	break;
-	    case 1:
-		method = "inspect";	break;
-	    case 2:
-		method = "backtrace";	break;
-	    default:
-		croak("Internal error in Inline::Ruby::Exception");
-		XSRETURN_EMPTY;
-	}
-	if (SvROK(obj) && SvTYPE(SvRV(obj)) == SVt_PVMG) {
-	    VALUE rb_exception = (VALUE)SvIV(SvRV(obj));
-	    RETVAL = rb2pl(rb_funcall(rb_exception, rb_intern(method), 0));
+	if (SvROK(obj) && SvTYPE(SvRV(obj)) == SVt_PVHV) {
+	    wrapper = (HV*)SvRV(obj);
 	}
 	else {
 	    croak("Not an Inline::Ruby::Exception object");
 	    XSRETURN_EMPTY;
 	}
+	switch(ix) {
+	    case 0:
+		method = "message";
+		RETRIEVE_CACHE(method);
+		break;
+	    case 1:
+		method = "inspect";
+		RETRIEVE_CACHE(method);
+		break;
+	    case 2:
+		method = "backtrace";
+		RETRIEVE_CACHE(method);
+		break;
+	    default:
+		croak("Internal error in Inline::Ruby::Exception");
+		XSRETURN_EMPTY;
+	}
+	VALUE rb_exception = (VALUE)SvIV(*hv_fetch(wrapper, "_rb_exc", 7, FALSE));
+	RETVAL = rb2pl(rb_funcall(rb_exception, rb_intern(method), 0));
+	STORE_CACHE(method, newSVsv(RETVAL));
     OUTPUT:
 	RETVAL
 
 SV*
 type(obj)
 	SV*	obj
+    PREINIT:
+	HV*     wrapper;
+	char*   method;
     CODE:
-	if (SvROK(obj) && SvTYPE(SvRV(obj)) == SVt_PVMG) {
-	    VALUE rb_exception = (VALUE)SvIV(SvRV(obj));
-	    VALUE klass = rb_funcall(rb_exception, rb_intern("class"), 0);
-	    RETVAL = rb2pl(rb_funcall(klass, rb_intern("name"), 0));
+	if (SvROK(obj) && SvTYPE(SvRV(obj)) == SVt_PVHV) {
+	    wrapper = (HV*)SvRV(obj);
 	}
 	else {
 	    croak("Not an Inline::Ruby::Exception object");
 	    XSRETURN_EMPTY;
 	}
+	method = "type";
+	RETRIEVE_CACHE(method);
+	{
+	    VALUE rb_exception = (VALUE)SvIV(*hv_fetch(wrapper, "_rb_exc", 7, FALSE));
+	    VALUE klass = rb_funcall(rb_exception, rb_intern("class"), 0);
+	    RETVAL = rb2pl(rb_funcall(klass, rb_intern("name"), 0));
+	    STORE_CACHE(method, newSVsv(RETVAL));
+	}
     OUTPUT:
 	RETVAL
+
+#undef RETRIEVE_CACHE
+#undef STORE_CACHE
