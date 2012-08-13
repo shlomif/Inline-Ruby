@@ -4,7 +4,11 @@
  ****************************************************************************/
 
 #include "rb2pl.h"
+#if RUBY_VERSION_MAJOR == 1 && RUBY_VERSION_MINOR == 9
+#include "ruby/st.h"
+#else
 #include "st.h"		/* ST_CONTINUE */
+#endif
 
 #define INL_MAGIC_NUM 0x2943545b
 #define INL_MAGIC_KEY(mg_ptr) (((inline_magic *)mg_ptr)->key)
@@ -33,6 +37,8 @@ free_InlineRubyWrapper(pTHX_ SV* obj, MAGIC* mg) {
     else {
 	croak("ERROR: tried to free a non-Ruby object. Aborting.");
     }
+
+    return 0;
 }
 
 SV *
@@ -172,7 +178,9 @@ call_PerlProc(VALUE self, VALUE args) {
 
     if (SvTRUE(ERRSV)) {
 	if (data->flags & G_SCALAR)
-	    POPs;
+	{
+	    (void)POPs;
+	}
 	rb_raise(rb_ePerlException, SvPV_nolen(ERRSV));
 	return Qnil;	/* not reached */
     }
@@ -259,10 +267,10 @@ rb2pl(VALUE obj) {
 	    rval = newSViv(NUM2INT(obj));
 	    return rval;
 	case T_FLOAT:
-	    rval = newSVnv(RFLOAT(obj)->value);
+	    rval = newSVnv(RFLOAT_VALUE(obj));
 	    return rval;
 	case T_STRING:
-	    rval = newSVpvn(RSTRING(obj)->ptr, RSTRING(obj)->len);
+	    rval = newSVpvn(RSTRING_PTR(obj), RSTRING_LEN(obj));
 	    return rval;
 
 	case T_ARRAY:
@@ -285,7 +293,7 @@ rb2pl(VALUE obj) {
 		long i;
 		HV *retval = newHV();
 		/* use keys_i() as a callback to populate the keys */
-		st_foreach(RHASH(obj)->tbl, &keys_i, keys);
+		st_foreach(RHASH_TBL(obj), &keys_i, keys);
 		for (i=0; i<RARRAY(keys)->len; i++) {
 		    SV *entry;
 		    char *key_c;
@@ -293,15 +301,15 @@ rb2pl(VALUE obj) {
 		    key = rb_ary_entry(keys, i);
 		    entry = rb2pl(rb_hash_aref(obj, key));
 		    if (TYPE(key) != T_STRING) {
-			/* Perl can only use strings as hash keys. 
+			/* Perl can only use strings as hash keys.
 			 * Use the stringified key, and emit a warning if
 			 * warnings are turned on. */
 			key = rb_convert_type(key, T_STRING, "String", "to_str");
 			warn("Warning: stringifying a hash-key may lose info!");
 		    }
-		    key_c = RSTRING(key)->ptr;
-		    klen = RSTRING(key)->len;
-		    hv_store(retval, key_c, klen, entry, 0);
+		    key_c = RSTRING_PTR(key);
+		    klen = RSTRING_LEN(key);
+		    (void)hv_store(retval, key_c, klen, entry, 0);
 		}
 		rval = newRV_noinc((SV*)retval);
 		return rval;
@@ -311,6 +319,11 @@ rb2pl(VALUE obj) {
 	    return &PL_sv_undef;
 	case T_TRUE:
 	    return newSViv(1);
+	case T_SYMBOL:
+	{
+	    const char *name = rb_id2name(SYM2ID(obj));
+	    return newSVpvn(name, strlen(name));
+	}
 	case T_FILE:
 	    /* Why not pass this as a FILE *? */
 	case T_REGEXP:

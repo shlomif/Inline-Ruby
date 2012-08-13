@@ -12,6 +12,22 @@
 #undef yydebug
 #include "ruby.h"
 
+#ifndef RFLOAT_VALUE
+#define RFLOAT_VALUE(o) RFLOAT(o)->value
+#endif
+
+#ifndef RSTRING_LEN
+#define RSTRING_LEN(o) RSTRING(o)->len
+#endif
+
+#ifndef RSTRING_PTR
+#define RSTRING_PTR(o) RSTRING(o)->ptr
+#endif
+
+#ifndef RHASH_TBL
+#define RHASH_TBL(o) RHASH(o)->tbl
+#endif
+
 /*============================================================================
  * To save a little time, I check the calling context and don't convert
  * the arguments if I'm in void context, flatten lists in list context,
