@@ -2,6 +2,7 @@ use Data::Dumper;
 use Config;
 use ExtUtils::MakeMaker;
 use Getopt::Long;
+use File::Spec::Functions;
 
 # Taken from Compress-Raw-Lzma's Makefile.PL
 my $WALL= '';
@@ -11,10 +12,10 @@ if ($Config{'cc'} =~ /gcc/)
 }
 
 GetOptions(
-	   'gdb:s' => \$gdb,
-	   debug => \$debug,
-	   help => \$help,
-	  );
+       'gdb:s' => \$gdb,
+       debug => \$debug,
+       help => \$help,
+      );
 
 usage() if $help;
 
@@ -49,7 +50,8 @@ print "Using $sel->{path}\n";
 interrogate($sel);
 
 # Fix up the libpath and libruby
-substr($sel->{incpath}, 0, 0) = "-I";
+# substr($sel->{incpath}, 0, 0) = "-I";
+my $inc_path = join(' ', map { "-I$_" } @{$sel->{incpath}});
 substr($sel->{libpath}, 0, 0) = "-L";
 $sel->{libruby} =~ s/lib(.*)(?:\.\Q$Config{dlext}\E|\Q$Config{_a}\E).*/-l$1/;
 
@@ -61,7 +63,7 @@ print <<END;
 Using these settings:
    Extra Libs:  $sel->{syslibs}
    Ruby Lib:    $sel->{libpath} $sel->{libruby}
-   Includes:    $sel->{incpath}
+   Includes:    $inc_path
    Extra Flags: @flags
 END
 
@@ -69,20 +71,25 @@ END
 # Finalize, and write the makefile
 #============================================================================
 $defs = join ' ', $WALL, qw(-UEXPOSE_PERL -DCREATE_RUBY -UCREATE_PERL),
-	$debug ? "-DI_RB_DEBUG" : ();
+    $debug ? "-DI_RB_DEBUG" : (),
+    (grep { defined } map { my $v = get_config_var($sel, $_); $v ne 'nil' ? "-DRUBY_VERSION_$_=$v" : undef } qw/MAJOR MINOR/);
+
+my $lddlflags = $Config{lddlflags};
+$lddlflags =~ s/-L\S+//g;
 
 WriteMakefile(
+    LDDLFLAGS => $lddlflags,
     $defs ? (DEFINE => $defs) : (),
     defined $gdb ? (OPTIMIZE => debug_flag()) : (),
-    INC			=> $sel->{incpath},
-    LIBS		=> (join ' ', @$sel{qw(libpath libruby syslibs)}),
-    OBJECT 		=> 'Ruby.o rb2pl.o',
-    NAME		=> 'Inline::Ruby',
-    VERSION_FROM	=> 'Ruby.pm', # finds $VERSION
-    PREREQ_PM		=> {
-			    Inline => 0.42,
-			   }, # e.g., Module::Name => 1.1
-    realclean		=> { FILES => '_Inline' },
+    INC         => $inc_path,
+    LIBS        => (join ' ', @$sel{qw(libpath libruby syslibs)}),
+    OBJECT      => 'Ruby.o rb2pl.o',
+    NAME        => 'Inline::Ruby',
+    VERSION_FROM    => 'Ruby.pm', # finds $VERSION
+    PREREQ_PM       => {
+                Inline => 0.42,
+               }, # e.g., Module::Name => 1.1
+    realclean       => { FILES => '_Inline' },
 );
 
 #============================================================================
@@ -93,29 +100,42 @@ sub interrogate {
     my $ref = shift;
     $ref->{syslibs} = get_config_var($ref, "LIBS");
     $ref->{libruby} = get_config_var($ref, "LIBRUBY");
+    my $ruby_hdr_dir = get_config_var($ref, "rubyhdrdir");
+    if ($ruby_hdr_dir ne 'nil') {
+        my $arch = get_config_var($ref, "arch");
+        # no "archhdrdir", so construct it by hand:
+        my $arch_hdr_dir = $arch ne 'nil' ? catdir($ruby_hdr_dir, $arch) : undef;
+        $ref->{incpath} = [ grep { defined } $ruby_hdr_dir, $arch_hdr_dir ];
+    }
 
     # Ruby 1.6.4 supports archdir, which is what we need. But 1.6.3 (the
     # earliest version I have) doesn't, so we should build it ourselves.
-    $ref->{incpath} = $ref->{libpath} = get_config_var($ref, "archdir");
-    if ($ref->{incpath} eq 'nil') {
-	$ref->{incpath} = $ref->{libpath} =
-	  join '/', (get_config_var($ref, "libdir"),
-		     "ruby",
-		     (join '.', get_config_var($ref, "MAJOR"),
-				get_config_var($ref, "MINOR")),
-		     get_config_var($ref, "arch"));
+    $ref->{libpath} = get_config_var($ref, "archdir");
+    if ($ref->{libpath} eq 'nil')
+    {
+        $ref->{libpath} =
+        catdir(
+            get_config_var($ref, "libdir"),
+            "ruby",
+            (
+                join '.', get_config_var($ref, "MAJOR"),
+                    get_config_var($ref, "MINOR")
+            ),
+            get_config_var($ref, "arch")
+        );
     }
-    return if -f "$ref->{libpath}/$ref->{libruby}";
+    $ref->{incpath} ||= [ $ref->{libpath} ];
+    return if -f catfile($ref->{libpath}, $ref->{libruby});
 
     # If ruby has been compiled for libruby.so, it continues to think
     # libruby.so is living in .../lib/ruby/1.6/$arch/; but the Makefile
     # installs it into .../lib/. Correct for that here:
     my @other_tries = (
-	get_config_var($ref, "libdir"),
-	qw(/usr/lib /lib),
+        get_config_var($ref, "libdir"),
+        qw(/usr/lib /lib),
     );
     for my $p (@other_tries) {
-	$ref->{libpath} = $p and return if -f "$p/$ref->{libruby}";
+        $ref->{libpath} = $p and return if -f "$p/$ref->{libruby}";
     }
 }
 
