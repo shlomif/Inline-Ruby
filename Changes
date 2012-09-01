@@ -1,11 +1,12 @@
 Revision history for Perl extension Inline-Ruby.
 
+0.04        Sat  1 Sep 19:38:36 IDT 2012
     - Start integrating the patch from
         https://rt.cpan.org/Public/Bug/Display.html?id=32536 for compatibility
         with ruby-1.9.x/etc.
         - Applied it semi-manually to Makefile.PL, and to the .xs and .c files.
 
-0.02        Thu  9 Aug 22:42:29 IDT 2012
+0.03        Thu  9 Aug 22:42:29 IDT 2012
     - RELEASE: Inline-Ruby-0.03
     - Got the tests to pass with recent perls and Ruby-1.8.7.
     - Some cleanups to Ruby.pm and the test suite.
