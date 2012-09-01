@@ -107,7 +107,7 @@ data_InlineRubyWrapper(SV* self) {
 /*============================================================================
  * This class is strictly for Perl subs or closures only. This is great,
  * because Ruby Proc()s can't take blocks, and neither can Perl subs.
- * 
+ *
  * class PerlProc {
  *    VALUE new_Proc(SV* cref);
  *    void free_PerlProc(VALUE self);
@@ -130,7 +130,7 @@ static VALUE
 new_PerlProc(SV* cref) {
     PerlProc *data;
     VALUE self;
-    
+
     Newz(527, data, 1, PerlProc);
     if (cref && SvTRUE(cref)) {
 	data->cref = cref;
@@ -219,7 +219,7 @@ eq_PerlProc(VALUE self, VALUE other) {
 
 static VALUE
 str_PerlProc(VALUE self, VALUE args) {
-    return 
+    return
 	rb_str_new2("#<PerlProc: sub, closure, or code reference>");
 }
 
@@ -355,7 +355,7 @@ pl2rb(SV *obj) {
 
 	Printf(("A Perl object (%s). Wrapping...\n", SvPV(full_pkg, PL_na)));
     }
-#endif 
+#endif
     else if (SvIOKp(obj)) {
 	Printf(("integer: %i\n", SvIV(obj)));
 	o = INT2FIX(SvIV(obj));
@@ -375,7 +375,7 @@ pl2rb(SV *obj) {
 	int i;
 	int len = av_len(av) + 1;
 	o = rb_ary_new2(len);
-	
+
 	Printf(("array (%i)\n", len));
 
 	for (i=0; i<len; i++) {

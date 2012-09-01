@@ -223,8 +223,8 @@ my_iter_bl(res, cv)
 	rb_raise(rb_ePerlException, SvPV_nolen(ERRSV));
 	return Qnil;	/* not reached */
     }
-    
-    if (count == 0) 
+
+    if (count == 0)
 	rb_retval = Qnil;
     else if (count == 1)
 	rb_retval = pl2rb(ST(0));
@@ -395,7 +395,7 @@ PROTOTYPES: DISABLE
 
 #=============================================================================
 # This is called to evaluate ruby code (duh!). It uses rb_rescue to trap any
-# compile errors raised by the interpreter. If an exception is thrown we 
+# compile errors raised by the interpreter. If an exception is thrown we
 # return an undef, and set the global variable "$@".
 #=============================================================================
 int
@@ -422,7 +422,7 @@ config_var(str)
 #endif
 	else {
 	    if (PL_dowarn)
-		warn("Inline::Ruby::config_var: unknown config var '%s'", str);	
+		warn("Inline::Ruby::config_var: unknown config var '%s'", str);
 	    XSRETURN_UNDEF;
 	}
     OUTPUT:
@@ -430,7 +430,7 @@ config_var(str)
 
 #=============================================================================
 # This is called to evaluate ruby code (duh!). It uses rb_rescue to trap any
-# compile errors raised by the interpreter. If an exception is thrown we 
+# compile errors raised by the interpreter. If an exception is thrown we
 # return an undef, and set the global variable "$@".
 #=============================================================================
 void
@@ -475,7 +475,7 @@ my_rb_call_function(FNAME, ...)
 #endif
 
 #=============================================================================
-# This is called whenever you need to call a class method. It takes the name 
+# This is called whenever you need to call a class method. It takes the name
 # of the class, the method name, an iterator block, and any arguments to the
 # method. If the iterator block is not a reference to a Perl subroutine, it is
 # not passed to the ruby method.
@@ -503,9 +503,9 @@ my_rb_call_class_method(KLASS, mname, ...)
 #endif
 
 #=============================================================================
-# This is called whenever you need to call an instance method. It takes the 
+# This is called whenever you need to call an instance method. It takes the
 # instance of the class, the method name, an iterator block, and any arguments
-# to the method. If the iterator block is not a reference to a Perl 
+# to the method. If the iterator block is not a reference to a Perl
 # subroutine, it is not passed to the ruby method.
 #=============================================================================
 #undef  NUM_FIXED_ARGS

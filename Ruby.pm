@@ -53,7 +53,7 @@ sub validate {
     $o->{ILSM}{AUTO_INCLUDE} ||= {};
     $o->{ILSM}{built} ||= 0;
     $o->{ILSM}{loaded} ||= 0;
-    
+
     $o->{ILSM}{bindto} = [qw(classes modules functions)];
     $o->{ILSM}{ITER} ||= 'iter';
 
@@ -84,7 +84,7 @@ sub validate {
 		    %filters = Inline::Filters::get_filters($o->{API}{language})
 		      unless keys %filters;
 		    if (defined $filters{$val}) {
-			my $filter = Inline::Filters->new($val, 
+			my $filter = Inline::Filters->new($val,
 							  $filters{$val});
 			$o->add_list($o->{ILSM}, $key, $filter, []);
 		    }
@@ -369,8 +369,8 @@ END
 }
 
 #==============================================================================
-# Wrap a Ruby class in a Perl package. We wrap every method we know about, 
-# and we inherit from Inline::Ruby::Object so the Perverse Ruby Programmer 
+# Wrap a Ruby class in a Perl package. We wrap every method we know about,
+# and we inherit from Inline::Ruby::Object so the Perverse Ruby Programmer
 # can still create dynamic methods on-the-fly using its AUTOLOAD.
 #==============================================================================
 sub rb_bind_class {
@@ -434,7 +434,7 @@ sub new {
     my $pkg = shift;
     splice @_, 1, 0, 'new';
     return bless &Inline::Ruby::rb_call_class_method, ref($pkg) || $pkg;
-} 
+}
 
 sub AUTOLOAD {
     no strict;

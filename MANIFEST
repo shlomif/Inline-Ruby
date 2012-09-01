@@ -19,3 +19,4 @@ t/07proc.t
 t/08bind1.t
 t/08bind2.t
 t/09regex.t
+t/style-trailing-space.t
