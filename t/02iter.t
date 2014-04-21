@@ -1,9 +1,9 @@
-use Test;
-BEGIN { plan tests => 11 }
+use Test::More tests => 11;
 
 use Data::Dumper;
 require Inline::denter;
 use Inline Ruby;
+# TEST
 ok(1);
 
 # Depending on whether FLATTEN_CALLBACK_ARGS is defined or not, array refs may
@@ -25,7 +25,8 @@ sub my_iter {
 	$results{Inline::Ruby::config_var("FLATTEN_CALLBACK_ARGS")}[$n++]
     );
     print Dumper $got, $exp;
-    ok($got, $exp);
+    # TEST*(4+4)
+    is($got, $exp);
 }
 
 $n = 0;
@@ -37,8 +38,15 @@ $obj->iter(\&my_iter)->each_proc;
 eval {
     $obj->each();
 };
-ok($@->type, 'LocalJumpError');
-ok($@->message, 'no block given');
+my $Err = $@;
+# TEST
+is ($Err->type, 'LocalJumpError', "Error type");
+# TEST
+like (
+    $Err->message,
+    qr/\Ano block given(?: \(yield\))?\z/,
+    "Message is correct.",
+);
 print "NOTE: $@\n";
 
 __END__
