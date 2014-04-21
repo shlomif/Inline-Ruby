@@ -28,7 +28,7 @@ sub import {
 
 sub dl_load_flags { 0x01 }
 Inline::Ruby->bootstrap($VERSION);
-eval_support_code();
+_eval_support_code();
 
 #==============================================================================
 # Register Ruby.pm as a valid Inline language
@@ -64,7 +64,7 @@ sub validate {
 	    $o->{ILSM}{regexp} = qr/$value/;
 	}
 	elsif ($key eq 'BIND_TYPE' or $key eq 'BIND_TYPES') {
-	    $o->add_list($o->{ILSM}, 'bindto', $value, []);
+	    $o->_add_list($o->{ILSM}, 'bindto', $value, []);
 	}
 	elsif ($key eq 'ITER') {
 	    $o->{ILSM}{$key} = $value;
@@ -75,7 +75,7 @@ sub validate {
 	    my %filters;
 	    for my $val (@$value) {
 		if (ref($val) eq 'CODE') {
-		    $o->add_list($o->{ILSM}, $key, $val, []);
+		    $o->_add_list($o->{ILSM}, $key, $val, []);
 	        }
 		else {
 		    eval { require Inline::Filters };
@@ -86,7 +86,7 @@ sub validate {
 		    if (defined $filters{$val}) {
 			my $filter = Inline::Filters->new($val,
 							  $filters{$val});
-			$o->add_list($o->{ILSM}, $key, $filter, []);
+			$o->_add_list($o->{ILSM}, $key, $filter, []);
 		    }
 		    else {
 			croak "Invalid filter $val specified.";
@@ -101,15 +101,15 @@ sub validate {
     }
 }
 
-sub usage_validate {
+sub _usage_validate {
     return "Invalid value for config option $_[0]";
 }
 
-sub add_list {
+sub _add_list {
     my $o = shift;
     my ($ref, $key, $value, $default) = @_;
     $value = [$value] unless ref $value;
-    croak usage_validate($key) unless ref($value) eq 'ARRAY';
+    croak _usage_validate($key) unless ref($value) eq 'ARRAY';
     foreach my $val (@$value) {
 	if (defined $val) {
 	    push @{$ref->{$key}}, $val;
@@ -120,11 +120,13 @@ sub add_list {
     }
 }
 
-sub add_string {
+=begin Removed
+
+sub _add_string {
     my $o = shift;
     my ($ref, $key, $value, $default) = @_;
     $value = [$value] unless ref $value;
-    croak usage_validate($key) unless ref($value) eq 'ARRAY';
+    croak _usage_validate($key) unless ref($value) eq 'ARRAY';
     foreach my $val (@$value) {
 	if (defined $val) {
 	    $ref->{$key} .= " $val";
@@ -135,11 +137,11 @@ sub add_string {
     }
 }
 
-sub add_text {
+sub _add_text {
     my $o = shift;
     my ($ref, $key, $value, $default) = @_;
     $value = [$value] unless ref $value;
-    croak usage_validate($key) unless ref($value) eq 'ARRAY';
+    croak _usage_validate($key) unless ref($value) eq 'ARRAY';
     for my $val (@$value) {
 	if (defined $val) {
 	    chomp($val);
@@ -151,6 +153,11 @@ sub add_text {
     }
 }
 
+=end Removed
+
+=cut
+
+
 #==========================================================================
 # Print a short information section if PRINT_INFO is enabled.
 #==========================================================================
@@ -158,7 +165,7 @@ sub info {
     my $o = shift;
     my $info =  "";
 
-    $o->build unless $o->{ILSM}{built};
+    $o->_build unless $o->{ILSM}{built};
 
     my @functions = @{$o->{ILSM}{namespace}{functions}||[]};
     $info .= "The following Ruby functions have been bound to Perl:\n"
@@ -185,7 +192,7 @@ sub info {
     return $info;
 }
 
-sub eval_support_code {
+sub _eval_support_code {
     rb_eval(<<'END');
 def inline_ruby_class_grokker(*classes)
     if classes == []
@@ -217,7 +224,7 @@ END
 #==========================================================================
 # Run the code, study the main namespace, and cache the results.
 #==========================================================================
-sub build {
+sub _build {
     my $o = shift;
     return if $o->{ILSM}{built};
 

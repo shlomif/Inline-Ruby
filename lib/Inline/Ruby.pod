@@ -567,18 +567,14 @@ of the following functions:
 
 =over 4
 
-=item 1
-
-rb_eval()
+=item rb_eval()
 
 Takes one string argument, a Ruby expression, and returns the result of
 evaluating it. For example:
 
    $sum = rb_eval("3 + 4");
 
-=item 2
-
-rb_call_function()
+=item rb_call_function()
 
 Takes the following arguments:
 
@@ -607,9 +603,7 @@ For example:
    END
    rb_call_function("func", 1, "2", [3, 4])
 
-=item 3
-
-rb_call_class_method()
+=item rb_call_class_method()
 
 Takes the following arguments:
 
@@ -639,9 +633,7 @@ For example:
 
    print Dumper rb_call_class_method("Class", "methods");
 
-=item 4
-
-rb_new_object()
+=item rb_new_object()
 
 Takes the following arguments:
 
@@ -678,9 +670,7 @@ For example:
    END
    my $o = rb_new_object("main::Cls", "Cls", 1, 2);
 
-=item 5
-
-rb_call_instance_method()
+=item rb_call_instance_method()
 
 Takes the following arguments:
 
@@ -711,9 +701,7 @@ For example:
    my $o = rb_new_object("Inline::Ruby::Object", "Object")
    my $ans = rb_call_instance_method($o, "methods");
 
-=item 6
-
-rb_iter()
+=item rb_iter()
 
 Sets up a Ruby method for calling in iterator context.
 
@@ -752,7 +740,30 @@ For example:
    # call Something#some_method without an iterator
    $obj->some_method;
 
+=item rb_bind_class()
+
+Currently undocumented.
+
+=item rb_bind_func()
+
+Currently undocumented.
+
 =back
+
+
+=head1 METHODS FOR INTERNAL USE
+
+=head2 config_var
+
+=head2 dl_load_flags
+
+=head2 info
+
+=head2 load
+
+=head2 register
+
+=head2 validate
 
 =head1 SUPPORTED PLATFORMS
 
