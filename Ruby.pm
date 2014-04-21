@@ -373,11 +373,21 @@ END
 # and we inherit from Inline::Ruby::Object so the Perverse Ruby Programmer
 # can still create dynamic methods on-the-fly using its AUTOLOAD.
 #==============================================================================
+
+my %bound_pkgs;
+
 sub rb_bind_class {
     my $pkg  	= shift;	# The perl class to use
     my $class	= shift;	# The ruby class to wrap
     my $iter	= shift;	# The name to use for 'iter'
     my %methods = @_;
+
+    $pkg =~ s/\Amain:://;
+    if (exists($bound_pkgs{$pkg}))
+    {
+        return;
+    }
+    $bound_pkgs{$pkg} = 1;
 
     my $bind = <<END;
 package ${pkg};
@@ -393,9 +403,12 @@ sub $iter {
 }
 END
 
+    my %bound_methods;
+
     for my $method (@{$methods{methods}}) {
 	next unless $method =~ /^\w+$/;
 	next if $method eq 'new';	# handled specially
+    next if $bound_methods{$method}++;
 	$bind .= <<END;
 sub $method {	# ${class}::${method}
     splice \@_, 1, 0, "$method";
@@ -405,6 +418,7 @@ END
     }
     for my $method (@{$methods{imethods}}) {
 	next unless $method =~ /^\w+$/;
+    next if $bound_methods{$method}++;
 	$bind .= <<END;
 sub $method {	# ${class}::${method}
     splice \@_, 1, 0, "$method";
