@@ -90,6 +90,10 @@ WriteMakefile(
                 Inline => 0.42,
                }, # e.g., Module::Name => 1.1
     realclean       => { FILES => '_Inline' },
+    (($ExtUtils::MakeMaker::VERSION >= 6.48)
+        ? (MIN_PERL_VERSION => '5.008',)
+        : ()
+    ),
 );
 
 #============================================================================
