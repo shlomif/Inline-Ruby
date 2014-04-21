@@ -77,6 +77,21 @@ $defs = join ' ', $WALL, qw(-UEXPOSE_PERL -DCREATE_RUBY -UCREATE_PERL),
 my $lddlflags = $Config{lddlflags};
 $lddlflags =~ s/-L\S+//g;
 
+sub _slurp
+{
+    my $filename = shift;
+
+    open my $in, '<', $filename
+        or die "Cannot open '$filename' for slurping - $!";
+
+    local $/;
+    my $contents = <$in>;
+
+    close($in);
+
+    return $contents;
+}
+
 WriteMakefile(
     LDDLFLAGS => $lddlflags,
     $defs ? (DEFINE => $defs) : (),
@@ -96,6 +111,30 @@ WriteMakefile(
     ),
     (($ExtUtils::MakeMaker::VERSION >= 6.48)
         ? (LICENSE => 'perl',)
+        : ()
+    ),
+    (($ExtUtils::MakeMaker::VERSION >= 6.48)
+        ? (
+            META_MERGE =>
+            {
+                provides => {
+                    'Inline::Ruby' => {
+                        file => "Ruby.pm",
+                        version => sub {
+                            my $contents = _slurp(File::Spec->catfile(File::Spec->curdir, qw( Ruby.pm )));
+                            if (my ($version) = ($contents =~ /^\$VERSION = '([^']*)'/ms))
+                            {
+                                return $version;
+                            }
+                            else
+                            {
+                                die "Cannot find version in file.";
+                            }
+                        }->(),
+                    },
+                },
+            },
+        )
         : ()
     ),
 );
