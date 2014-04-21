@@ -3,12 +3,12 @@ MANIFEST
 Makefile.PL
 README
 Ruby.pm
-lib/Inline/Ruby.pod
 Ruby.xs
+examples/inline-ruby-test.pl
+lib/Inline/Ruby.pod
 rb2pl.c
 rb2pl.h
 samples/tk/tkhello.pl
-examples/inline-ruby-test.pl
 t/01basic.t
 t/02iter.t
 t/03bindfunc.t
@@ -19,4 +19,6 @@ t/07proc.t
 t/08bind1.t
 t/08bind2.t
 t/09regex.t
+t/pod-coverage.t
+t/pod.t
 t/style-trailing-space.t

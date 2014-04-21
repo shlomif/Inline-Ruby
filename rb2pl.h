@@ -24,6 +24,29 @@
 #define RSTRING_PTR(o) RSTRING(o)->ptr
 #endif
 
+/*
+ * See:
+ *
+ * - http://stackoverflow.com/questions/4631251/rvm-ruby-1-9-2-symbol-not-found-str2cstr
+ *
+ * - https://www.ruby-forum.com/topic/215406
+ * */
+#ifndef STR2CSTR
+#define STR2CSTR(x) StringValuePtr(x)
+#endif
+/*
+ * See:
+ *
+ * - http://jgarber.lighthouseapp.com/projects/13054/tickets/102-ruby-191-rarrayx-len-should-be-rarray_lenx
+ *
+ * */
+#ifndef RARRAY_LEN
+#define RARRAY_LEN(arr) (RARRAY(arr)->len)
+#endif
+#ifndef RARRAY_PTR
+#define RARRAY_PTR(arr) (RARRAY(arr)->ptr)
+#endif
+
 #ifndef RHASH_TBL
 #define RHASH_TBL(o) RHASH(o)->tbl
 #endif

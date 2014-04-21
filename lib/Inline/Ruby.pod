@@ -15,7 +15,7 @@ Inline::Ruby - Write Perl subroutines and classes in Ruby.
    def add(a, b)
      a + b
    end
- 
+
    def subtract(a, b)
      a - b
    end
@@ -51,7 +51,7 @@ the source code to Inline::Ruby, and then use them.
      ...
    end
    END
-   
+
    doit();
 
 =head2 Importing Classes
@@ -263,13 +263,13 @@ converted to a Proc object, callable from Ruby:
 Inline::Ruby ships with this sample script:
 
    use Inline Ruby => 'require "tk"';
-   
+
    # Create a button widget that prints 'hello', and pack it.
    TkButton->new(undef,{text=>'hello',command=>sub{print"hello\n"}})->pack;
-   
+
    # Create a button widget that exits the process, and pack it.
    TkButton->new(undef,{text=>'quit',command=>'exit'})->pack;
-   
+
    # Run Tk's mainloop
    Tk->mainloop;
 
@@ -367,7 +367,7 @@ Perl Exception again.
 
 This example prints the following:
 
-   ttul:~/dev/cpan/Inline-Ruby$ perl -Mblib t.pl 
+   ttul:~/dev/cpan/Inline-Ruby$ perl -Mblib t.pl
    Using /home/nwatkiss/dev/cpan/Inline-Ruby/blib
    #<PerlException:        (in cleanup) died! at t.pl line 3.>
 
@@ -379,7 +379,7 @@ This exception could have been caught in two places:
 
 =over 4
 
-=item 1 
+=item 1
 
 Catching Perl Exceptions in Ruby
 
@@ -436,6 +436,8 @@ Which prints:
    ttul:~/dev/cpan/Inline-Ruby$ perl -Mblib t.pl
    Using /home/nwatkiss/dev/cpan/Inline-Ruby/blib
    Got an exception: #<PerlException:      (in cleanup) died! at t.pl line 3.>
+
+=back
 
 =head1 Supported Data Types
 
@@ -551,8 +553,6 @@ False, Nil, and anything else
 Converted to C<undef>.
 
 =back
-
-=over 4
 
 =head1 Low-Level Inline::Ruby
 

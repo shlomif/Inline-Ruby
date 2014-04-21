@@ -1,5 +1,8 @@
 Revision history for Perl extension Inline-Ruby.
 
+    - Some compatibility with ruby-1.9.x and POD fixes.
+        - Add t/pod.t and t/pod-coverage.t.
+
 0.04        Sat  1 Sep 19:38:36 IDT 2012
     - Start integrating the patch from
         https://rt.cpan.org/Public/Bug/Display.html?id=32536 for compatibility

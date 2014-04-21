@@ -142,7 +142,7 @@ my_iter_it(fake)
     Printf(("args = %s (%i)\n", STR2CSTR(rb_inspect(args)), TYPE(args)));
     Printf(("============================\n"));
     return rb_funcall2(obj, rb_intern(STR2CSTR(method)),
-		       RARRAY(args)->len, RARRAY(args)->ptr);
+		       RARRAY_LEN(args), RARRAY_PTR(args));
 }
 
 /*
@@ -220,7 +220,7 @@ my_iter_bl(res, cv)
 
 	/* stringify the Perl error into the Ruby error */
 	my_do_chomp(ERRSV);
-	rb_raise(rb_ePerlException, SvPV_nolen(ERRSV));
+	rb_raise(rb_ePerlException, "%s", SvPV_nolen(ERRSV));
 	return Qnil;	/* not reached */
     }
 
@@ -303,7 +303,10 @@ my_error_wrapper(arg)
 
     /* Extract the arguments */
     obj = rb_ary_entry(arg, 0);
-    method = STR2CSTR(rb_ary_entry(arg, 1));
+    {
+        VALUE method_obj = rb_ary_entry(arg, 1);
+        method = STR2CSTR(method_obj);
+    }
     iter = (SV*)rb_ary_entry(arg, 2);
     argv = rb_ary_entry(arg, 3);
 
@@ -319,7 +322,7 @@ my_error_wrapper(arg)
     else {
 	Printf(("calling func\n"));
 	retv = rb_funcall2(obj, rb_intern(method),
-			   RARRAY(argv)->len, RARRAY(argv)->ptr);
+			   RARRAY_LEN(argv), RARRAY_PTR(argv));
     }
     /* If we get here, there were no exceptions */
     Printf(("No exceptions thrown, clearing ERRSV!\n"));

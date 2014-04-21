@@ -181,7 +181,7 @@ call_PerlProc(VALUE self, VALUE args) {
 	{
 	    (void)POPs;
 	}
-	rb_raise(rb_ePerlException, SvPV_nolen(ERRSV));
+	rb_raise(rb_ePerlException, "%s", SvPV_nolen(ERRSV));
 	return Qnil;	/* not reached */
     }
 
@@ -278,7 +278,7 @@ rb2pl(VALUE obj) {
 		/* Convert the Ruby array into a Perl array */
 		long i;
 		AV *retval = newAV();
-		for (i=0; i<RARRAY(obj)->len; i++) {
+		for (i=0; i<RARRAY_LEN(obj); i++) {
 		    SV *entry = rb2pl(rb_ary_entry(obj, i));
 		    av_push(retval, entry);
 		}
@@ -294,7 +294,7 @@ rb2pl(VALUE obj) {
 		HV *retval = newHV();
 		/* use keys_i() as a callback to populate the keys */
 		st_foreach(RHASH_TBL(obj), &keys_i, keys);
-		for (i=0; i<RARRAY(keys)->len; i++) {
+		for (i=0; i<RARRAY_LEN(keys); i++) {
 		    SV *entry;
 		    char *key_c;
 		    STRLEN klen;
