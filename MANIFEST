@@ -1,4 +1,5 @@
 Changes
+Changes.old-changes
 LICENSE
 MANIFEST
 Makefile.PL
@@ -20,6 +21,7 @@ t/07proc.t
 t/08bind1.t
 t/08bind2.t
 t/09regex.t
+t/cpan-changes.t
 t/pod-coverage.t
 t/pod.t
 t/style-trailing-space.t
