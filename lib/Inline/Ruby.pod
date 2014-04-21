@@ -753,6 +753,8 @@ Currently undocumented.
 
 =head1 METHODS FOR INTERNAL USE
 
+=head2 build
+
 =head2 config_var
 
 =head2 dl_load_flags

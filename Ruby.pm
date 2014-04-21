@@ -165,7 +165,7 @@ sub info {
     my $o = shift;
     my $info =  "";
 
-    $o->_build unless $o->{ILSM}{built};
+    $o->build unless $o->{ILSM}{built};
 
     my @functions = @{$o->{ILSM}{namespace}{functions}||[]};
     $info .= "The following Ruby functions have been bound to Perl:\n"
@@ -224,7 +224,7 @@ END
 #==========================================================================
 # Run the code, study the main namespace, and cache the results.
 #==========================================================================
-sub _build {
+sub build {
     my $o = shift;
     return if $o->{ILSM}{built};
 
