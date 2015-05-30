@@ -1,5 +1,8 @@
 Revision history for Perl extension Inline-Ruby.
 
+0.06    2015-05-30
+    - Add the link to the VCS repository.
+
 0.05    2014-04-21
     - Some compatibility with ruby-1.9.x and POD fixes.
         - Add t/pod.t and t/pod-coverage.t.

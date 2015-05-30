@@ -133,6 +133,14 @@ WriteMakefile(
                         }->(),
                     },
                 },
+                resources => {
+                    repository => {
+                        type => 'git',
+                        url => 'git://github.com/shlomif/Inline-Ruby.git',
+                        web => 'https://github.com/shlomif/Inline-Ruby',
+                    },
+
+                },
             },
         )
         : ()
