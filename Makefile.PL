@@ -117,6 +117,8 @@ WriteMakefile(
         ? (
             META_MERGE =>
             {
+                "meta-spec" => { version => 2 },
+
                 provides => {
                     'Inline::Ruby' => {
                         file => "Ruby.pm",

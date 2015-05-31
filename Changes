@@ -1,5 +1,9 @@
 Revision history for Perl extension Inline-Ruby.
 
+0.07    2015-05-31
+    - Fix the link to the VCS repository.
+        - w.r.t the previous version.
+
 0.06    2015-05-30
     - Add the link to the VCS repository.
 
