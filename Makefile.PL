@@ -178,7 +178,7 @@ sub interrogate {
     $ref->{syslibs} = get_config_var($ref, "LIBS");
     $ref->{libruby} = get_config_var($ref, "LIBRUBY");
     my $enable_shared = get_config_var($ref, "ENABLE_SHARED");
-    my $libruby_a = get_config_var($rev, "LIBRUBY_A");
+    my $libruby_a = get_config_var($ref, "LIBRUBY_A");
     if ($enable_shared && $ref->{libruby} ne $libruby_a) {
             $ref->{libruby} = get_config_var($ref, "LIBRUBYARG");
     }
