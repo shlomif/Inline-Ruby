@@ -1,5 +1,6 @@
 use Data::Dumper;
 use Config;
+use Cwd qw(abs_path);
 use ExtUtils::MakeMaker;
 use Getopt::Long;
 use File::Spec::Functions;
@@ -22,25 +23,45 @@ usage() if $help;
 #============================================================================
 # What ruby are we going to run?
 #============================================================================
-my @rubies;
-for $p (split /$Config{path_sep}/, $ENV{PATH}) {
-    $p =~ s/^~/$ENV{HOME}/;
-    $p .= "/ruby";
-    push @rubies, { path => $p } if -f $p && -x $p;
+my $sel = $ENV{INLINE_RUBY_EXECUTABLE};
+unless (defined $sel && length $sel) {
+    my @rubies;
+    my %rubies;
+    my $sep = $^O eq 'MSWin32' ? ";" : ":";
+    for $p (split /$sep/, $ENV{PATH}) {
+        $p =~ s/^~/$ENV{HOME}/;
+        $p .= "/ruby";
+        next unless -f $p and -x $p;
+        next if $rubies{abs_path($p)}++; # filter symlinked duplicates
+        push @rubies, { path => $p };
+    }
+
+    # Keep them in PATH order.
+    # @rubies = sort { $a->{path} cmp $b->{path} } @rubies;
+
+    my $num = 1;
+    print "Found these ruby executables on your PATH:\n";
+    print $num++ . ". " . $_->{path} . "\n" for @rubies;
+
+    if (@rubies == 1 and not $sel) {
+        $sel = $rubies[0];
+        print "Using the only ruby executable I could find\n";
+        print 'Set the INLINE_RUBY_EXECUTABLE environment variable to'
+            . " the full path to your ruby executable to override this selection.\n";
+    }
+    unless ($sel) {
+        $sel = prompt("Use which?", '1');
+        if ($sel =~ /^\d+$/) {
+            die 'Invalid number. Please enter only numbers from 1 to ' . ($num - 1)
+                . " or the full path to your ruby executable.\n"
+                . 'Set the INLINE_RUBY_EXECUTABLE environment variable to'
+                . " the full path to your ruby executable to avoid this question.\n"
+                if $sel > ($num - 1);
+            $sel = $rubies[$sel - 1];
+        }
+    }
 }
-
-unless (@rubies) {
-    print "Could not find the ruby interpreter on your PATH. Stopping...\n";
-    exit 1;
-}
-
-my $num = 1;
-print "Found ${\(scalar @rubies)} ruby executables on your PATH.\n";
-print $num++ . ". " . $_->{path} . "\n" for @rubies;
-
-my $sel = prompt("Use which?", (scalar @rubies ? '1' : ()));
-$sel = $rubies[$sel-1] if $sel =~ /^\d+$/;
-$sel = { path => $sel } unless ref $sel eq 'HASH';
+$sel = { path => $sel } unless ref $sel eq 'HASH'; # in case the user entered a path
 
 print "Using $sel->{path}\n";
 
