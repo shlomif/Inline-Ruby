@@ -200,7 +200,7 @@ sub get_config_var {
     my $ref = shift;
     my $key = shift;
     my $exe = $ref->{path};
-    my $val = `$exe -e "require 'rbconfig'; include Config; puts CONFIG['$key']"`;
+    my $val = `$exe -e "require 'rbconfig'; include RbConfig; puts CONFIG['$key']"`;
     chomp $val;
     return $val;
 }
