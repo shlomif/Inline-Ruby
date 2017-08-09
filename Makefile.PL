@@ -70,11 +70,10 @@ print "Using $sel->{path}\n";
 #============================================================================
 interrogate($sel);
 
-# Fix up the libpath and libruby
+# Fix up the libpath
 # substr($sel->{incpath}, 0, 0) = "-I";
 my $inc_path = join(' ', map { "-I$_" } @{$sel->{incpath}});
 substr($sel->{libpath}, 0, 0) = "-L";
-$sel->{libruby} =~ s/lib(.*)(?:\.\Q$Config{dlext}\E|\Q$Config{_a}\E).*/-l$1/;
 
 my @flags;
 push @flags, debug_flag() if defined $gdb;
@@ -178,6 +177,11 @@ sub interrogate {
     my $ref = shift;
     $ref->{syslibs} = get_config_var($ref, "LIBS");
     $ref->{libruby} = get_config_var($ref, "LIBRUBY");
+    my $enable_shared = get_config_var($ref, "ENABLE_SHARED");
+    my $libruby_a = get_config_var($rev, "LIBRUBY_A");
+    if ($enable_shared && $ref->{libruby} ne $libruby_a) {
+            $ref->{libruby} = get_config_var($ref, "LIBRUBYARG");
+    }
     my $ruby_hdr_dir = get_config_var($ref, "rubyhdrdir");
     if ($ruby_hdr_dir ne 'nil') {
         my $arch = get_config_var($ref, "arch");
