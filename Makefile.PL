@@ -209,6 +209,12 @@ sub interrogate {
     $ref->{incpath} ||= [ $ref->{libpath} ];
     return if -f catfile($ref->{libpath}, $ref->{libruby});
 
+    my $libdirname = get_config_var($ref, "LIBDIRNAME");
+    $libdirname = 'libdir' unless defined $libdirname && length $libdirname;
+    my $libdir = get_config_var($ref, $libdirname);
+    $ref->{libpath} .= qq{ -L$libdir}
+        if defined $libdir && length $libdir;
+
     # If ruby has been compiled for libruby.so, it continues to think
     # libruby.so is living in .../lib/ruby/1.6/$arch/; but the Makefile
     # installs it into .../lib/. Correct for that here:
