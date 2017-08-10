@@ -92,7 +92,7 @@ END
 #============================================================================
 $defs = join ' ', $WALL, qw(-UEXPOSE_PERL -DCREATE_RUBY -UCREATE_PERL),
     $debug ? "-DI_RB_DEBUG" : (),
-    (grep { defined } map { my $v = get_config_var($sel, $_); $v ne 'nil' ? "-DRUBY_VERSION_$_=$v" : undef } qw/MAJOR MINOR/);
+    (grep { defined } map { my $v = get_config_var($sel, $_); defined $v ? "-DRUBY_VERSION_$_=$v" : undef } qw/MAJOR MINOR/);
 
 my $lddlflags = $Config{lddlflags};
 $lddlflags =~ s/-L\S+//g;
@@ -183,17 +183,17 @@ sub interrogate {
             $ref->{libruby} = get_config_var($ref, "LIBRUBYARG");
     }
     my $ruby_hdr_dir = get_config_var($ref, "rubyhdrdir");
-    if ($ruby_hdr_dir ne 'nil') {
+    if (defined $ruby_hdr_dir) {
         my $arch = get_config_var($ref, "arch");
         # no "archhdrdir", so construct it by hand:
-        my $arch_hdr_dir = $arch ne 'nil' ? catdir($ruby_hdr_dir, $arch) : undef;
+        my $arch_hdr_dir = defined $arch ? catdir($ruby_hdr_dir, $arch) : undef;
         $ref->{incpath} = [ grep { defined } $ruby_hdr_dir, $arch_hdr_dir ];
     }
 
     # Ruby 1.6.4 supports archdir, which is what we need. But 1.6.3 (the
     # earliest version I have) doesn't, so we should build it ourselves.
     $ref->{libpath} = get_config_var($ref, "archdir");
-    if ($ref->{libpath} eq 'nil')
+    if (defined $ref->{libpath})
     {
         $ref->{libpath} =
         catdir(
@@ -231,7 +231,16 @@ sub get_config_var {
     my $ref = shift;
     my $key = shift;
     my $exe = $ref->{path};
-    my $val = `$exe -e "require 'rbconfig'; include RbConfig; puts CONFIG['$key']"`;
+    my $val = `\n\
+    $exe -e "require 'rbconfig'\n\
+             include RbConfig\n\
+             v = CONFIG['$key']\n\
+             if v == nil\n\
+                 exit 1\n\
+             end\n\
+             puts v"`;
+    return if $?;
+
     chomp $val;
     return $val;
 }
