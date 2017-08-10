@@ -32,7 +32,7 @@
  * - https://www.ruby-forum.com/topic/215406
  * */
 #ifndef STR2CSTR
-#define STR2CSTR(x) StringValuePtr(x)
+#define STR2CSTR(x) ({VALUE _v = (VALUE) x; StringValuePtr(_v); })
 #endif
 /*
  * See:
