@@ -4,7 +4,7 @@
  ****************************************************************************/
 
 #include "rb2pl.h"
-#if RUBY_VERSION_MAJOR > 1 || (RUBY_VERSION_MAJOR == 1 && RUBY_VERSION_MINOR > 9)
+#if RUBY_VERSION_MAJOR > 1 || (RUBY_VERSION_MAJOR == 1 && RUBY_VERSION_MINOR >= 9)
 #include "ruby/st.h"
 #else
 #include "st.h"		/* ST_CONTINUE */
