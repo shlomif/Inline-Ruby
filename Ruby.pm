@@ -31,15 +31,15 @@ Inline::Ruby->bootstrap($VERSION);
 
 use constant _GET_NAMESPACE => <<EOF;
 Proc.new {
-    ns = { 'classes' => {}, 'modules' => {}, 'f' => {} }
+    ns = { 'classes' => {}, 'modules' => {}, 'functions' => {} }
     ObjectSpace.each_object(Class) do |x|
         ns['classes'][x.name] = 1
     end
     ObjectSpace.each_object(Module) do |x|
         ns['modules'][x.name] = 1
     end
-    Kernel.methods.each do |x|
-        ns['f'][x] = 1
+    Object.private_instance_methods.each do |x|
+        ns['functions'][x] = 1
     end
     ns
 }.call
@@ -276,7 +276,7 @@ sub build {
     # Get more details about the classes and modules.
     # FIXME! Is the quoting correct?
     my $classes_arg = join ', ', map { quotemeta $_ } keys %{$post->{classes}};
-    my %c = rb_eval(<<EOF);
+    my $c = rb_eval(<<EOF);
 Proc.new {
     ns = {}
     classes = [$classes_arg]
@@ -294,7 +294,7 @@ Proc.new {
 EOF
 
     my $modules_arg = join ', ', map { quotemeta $_ } keys %{$post->{modules}};
-    my %m = rb_eval(<<EOF);
+    my $m = rb_eval(<<EOF);
 Proc.new {
     ns = {}
     classes = [$modules_arg]
@@ -313,7 +313,7 @@ EOF
 
     # And the namespace is:
     my %namespace = (
-	classes		=> { %c, %m },
+	classes		=> { %$c, %$m },
 	functions	=> [keys %{$post->{functions} || {}}],
     );
 
