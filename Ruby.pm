@@ -242,7 +242,7 @@ END
 sub build {
     my $o = shift;
     return if $o->{ILSM}{built};
-   
+
     # Filter the code
     $o->{ILSM}{code} = $o->filter(@{$o->{ILSM}{FILTERS}});
 
