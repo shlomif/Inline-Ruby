@@ -304,8 +304,8 @@ rb2pl(VALUE obj) {
 			/* Perl can only use strings as hash keys.
 			 * Use the stringified key, and emit a warning if
 			 * warnings are turned on. */
-			key = rb_convert_type(key, T_STRING, "String", "to_str");
-			warn("Warning: stringifying a hash-key may lose info!");
+			key = rb_convert_type(key, T_STRING, "String", "to_s");
+			/* warn("Warning: stringifying a hash-key may lose info!"); */
 		    }
 		    key_c = RSTRING_PTR(key);
 		    klen = RSTRING_LEN(key);
