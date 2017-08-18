@@ -275,7 +275,9 @@ sub build {
 
     # Get more details about the classes and modules.
     # FIXME! Is the quoting correct?
-    my $classes_arg = join ', ', map { quotemeta $_ } keys %{$post->{classes}};
+    my $classes_arg = join ', ',
+                      map { '"' . (quotemeta $_) . '"' }
+                      keys %{$post->{classes}};
     my $c = rb_eval(<<EOF);
 Proc.new {
     ns = {}
@@ -293,7 +295,9 @@ Proc.new {
 }.call
 EOF
 
-    my $modules_arg = join ', ', map { quotemeta $_ } keys %{$post->{modules}};
+    my $modules_arg = join ', ',
+                      map { '"' . (quotemeta $_) . '"' }
+                      keys %{$post->{modules}};
     my $m = rb_eval(<<EOF);
 Proc.new {
     ns = {}
