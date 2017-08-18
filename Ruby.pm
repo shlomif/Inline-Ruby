@@ -245,11 +245,12 @@ sub build {
     }
 
     # Get more details about the classes and modules.
-    # FIXME! Is the quoting correct?
-    my $classes_arg = join ', ',
-                      map { '"' . (quotemeta $_) . '"' }
-                      keys %{$post->{classes}};
-    my $c = rb_eval(<<EOF);
+    my $c = {};
+    if (keys %{$post->{classes}}) {
+        my $classes_arg = join ', ',
+                          map { '"' . (quotemeta $_) . '"' }
+                          keys %{$post->{classes}};
+        $c = rb_eval(<<EOF);
 Proc.new {
     ns = {}
     classes = [$classes_arg]
@@ -265,11 +266,14 @@ Proc.new {
     ns
 }.call
 EOF
+    }
 
-    my $modules_arg = join ', ',
-                      map { '"' . (quotemeta $_) . '"' }
-                      keys %{$post->{modules}};
-    my $m = rb_eval(<<EOF);
+    my $m = {};
+    if (%{$post->{modules}}) {
+        my $modules_arg = join ', ',
+                          map { '"' . (quotemeta $_) . '"' }
+                          keys %{$post->{modules}};
+        $m = rb_eval(<<EOF);
 Proc.new {
     ns = {}
     classes = [$modules_arg]
@@ -285,6 +289,7 @@ Proc.new {
     ns
 }.call
 EOF
+    }
 
     # And the namespace is:
     my %namespace = (
