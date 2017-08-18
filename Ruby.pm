@@ -207,35 +207,6 @@ sub info {
     return $info;
 }
 
-sub _eval_support_code {
-    rb_eval(<<'END');
-def inline_ruby_class_grokker(*classes)
-    if classes == []
-	ObjectSpace.each_object(Class) do |x|
-	    yield ['classes', x.name]
-	end
-	ObjectSpace.each_object(Module) do |x|
-	    yield ['modules', x.name]
-	end
-	Kernel.methods.each do |x|
-	    yield ['functions', x]
-	end
-    else
-	classes.each do |k|
-	    n = {}
-	    begin
-		n['methods'] = eval "#{k}.methods"
-		n['imethods'] = eval "#{k}.instance_methods"
-	    rescue Exception
-		p "Exception: " + $!
-	    end
-	    yield [k, n]
-	end
-    end
-end
-END
-}
-
 #==========================================================================
 # Run the code, study the main namespace, and cache the results.
 #==========================================================================
