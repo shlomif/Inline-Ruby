@@ -15,10 +15,24 @@ is(httpdate(), 'Fri, 18 Aug 2017 01:23:45 GMT', 'httpdate')
 
 __END__
 __Ruby__
+# Require a class with dependencies.
 require 'time'
-require 'pp'
+
+# Require a module with dependencies.
+require 'tsort'
+
+class Hash
+  include TSort
+  alias tsort_each_node each_key
+  def tsort_each_child(node, &block)
+    fetch(node).each(&block)
+  end
+end
+
+{1=>[2, 3], 2=>[3], 3=>[], 4=>[]}.tsort
 
 def httpdate
     t = Time.parse('2017-08-18 04:23:45 EEST')
     return t.httpdate
 end
+
