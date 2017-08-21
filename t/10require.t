@@ -31,8 +31,9 @@ end
 
 {1=>[2, 3], 2=>[3], 3=>[], 4=>[]}.tsort
 
+# Ruby seems to ignore the timezone.  So we have to use UTC.
 def httpdate
-    t = Time.parse('2017-08-18 04:23:45 EEST')
+    t = Time.parse('2017-08-18 01:23:45 UTC')
     return t.httpdate
 end
 
