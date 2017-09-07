@@ -246,7 +246,7 @@ sub build {
 
     # Get more details about the classes and modules.
     my $c = {};
-    if (keys %{$post->{classes}}) {
+    if (keys %{$post->{classes} || {}}) {
         my $classes_arg = join ', ',
                           map { '"' . (quotemeta $_) . '"' }
                           keys %{$post->{classes}};
@@ -269,7 +269,7 @@ EOF
     }
 
     my $m = {};
-    if (%{$post->{modules}}) {
+    if (%{$post->{modules} || {}}) {
         my $modules_arg = join ', ',
                           map { '"' . (quotemeta $_) . '"' }
                           keys %{$post->{modules}};
