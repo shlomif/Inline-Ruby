@@ -19,7 +19,7 @@ before_install:
 install:
     - cpanm --quiet --notest --skip-satisfied Inline Test::CPAN::Changes Test::Pod Test::Pod::Coverage Test::TrailingSpace
 script:
-    - perl Makefile.PL
+    - INLINE_RUBY_EXECUTABLE=/usr/bin/ruby perl Makefile.PL
     - make
     - make test
     - make disttest
