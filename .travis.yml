@@ -6,7 +6,6 @@ perl:
     - '5.20'
     - '5.18'
     - '5.16'
-    - '5.14'
     - 'blead'
 matrix:
     allow_failures:
@@ -17,9 +16,11 @@ before_install:
     - git config --global user.name "TravisCI"
     - git config --global user.email $HOSTNAME":not-for-mail@travis-ci.org"
 install:
+    - cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
     - cpanm --quiet --notest --skip-satisfied Inline Test::CPAN::Changes Test::Pod Test::Pod::Coverage Test::TrailingSpace
     - sudo apt-get -y install ruby-dev
 script:
+    - eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
     - export INLINE_RUBY_EXECUTABLE=/usr/bin/ruby
     - perl Makefile.PL
     - make
