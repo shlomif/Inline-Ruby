@@ -228,7 +228,7 @@ sub build {
     delete @{ $post->{classes} }{@skip_clas, keys(%{$pre->{classes}})};
     delete @{ $post->{functions} }{@skip_func, keys(%{$pre->{functions}})};
     delete @{ $post->{modules} }{
-        keys(%{$pre->{modules}}), keys(%{$post->{classes}})
+        keys(%{$pre->{modules}}), keys(%{$post->{classes}}), grep /:[a-z]/, keys(%{$post->{modules}})
     };
 
     # Filter the results according to the {bindto} and {REGEXP} selections:
