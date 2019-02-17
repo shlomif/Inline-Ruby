@@ -220,6 +220,7 @@ sub build {
     # Get the namespace before & after evaluating the code:
     my $pre = rb_eval(_GET_NAMESPACE);
     rb_eval($o->{ILSM}{code});
+    $o->{ILSM}{evaluated}++;
     my $post = rb_eval(_GET_NAMESPACE);
 
     # Select those things which sprang into existence after running the code:
@@ -356,7 +357,7 @@ sub load {
     $o->{ILSM}{loaded}++;
 
     # Run it
-    rb_eval($o->{ILSM}{code});
+    rb_eval($o->{ILSM}{code}) unless $o->{ILSM}{evaluated};
 
     # Bind it all
     for my $func (@{ $o->{ILSM}{namespace}{functions} || [] })

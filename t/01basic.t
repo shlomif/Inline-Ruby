@@ -11,7 +11,7 @@ use Data::Dumper;
 use IO::Handle;
 
 
-BEGIN { plan tests => 15 }
+BEGIN { plan tests => 16 }
 END {print "not ok 1\n" unless $loaded;}
 use Inline 'Ruby';
 IO::Handle->autoflush(1);
@@ -43,6 +43,10 @@ Stumpme->class_method(7, 8, 9);
 # With iterators:
 $o->iter(sub{ print "ok $_[0]\n" })->inst_iterator(10, 11, 12);
 Stumpme->iter(sub{ print "ok $_[0]\n" })->class_iterator(13, 14, 15);
+
+# Test for https://rt.cpan.org/Ticket/Display.html?id=128530
+print "not " unless getcounter() == 1;
+print "ok 16\n";
 
 __END__
 __Ruby__
@@ -87,4 +91,11 @@ class Test128484 < StringIO
       # it here. I'm not sure why, but adding this method caused the
       # bug to be provoked in this test script.
   end
+end
+
+# Test for https://rt.cpan.org/Ticket/Display.html?id=128530
+$counter = 0 if $counter.nil?
+$counter += 1
+def getcounter
+  $counter
 end
