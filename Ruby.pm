@@ -220,7 +220,7 @@ sub build {
     # Get the namespace before & after evaluating the code:
     my $pre = rb_eval(_GET_NAMESPACE);
     rb_eval($o->{ILSM}{code});
-    $o->{ILSM}{evaluated}++;
+    ++$o->{ILSM}{evaluated};
     my $post = rb_eval(_GET_NAMESPACE);
 
     # Select those things which sprang into existence after running the code:
@@ -322,7 +322,7 @@ EOF
     }
 
     $o->{ILSM}{namespace} = \%namespace;
-    $o->{ILSM}{built}++;
+    ++$o->{ILSM}{built};
 }
 
 sub _slurp
@@ -354,7 +354,7 @@ sub load {
     $o->{ILSM}{namespace} = $rbdat{namespace};
     $o->{ILSM}{code} = $rbdat{filtered};
     $o->{ILSM}{ITER} = $rbdat{itername};
-    $o->{ILSM}{loaded}++;
+    ++$o->{ILSM}{loaded};
 
     # Run it
     rb_eval($o->{ILSM}{code}) unless $o->{ILSM}{evaluated};
