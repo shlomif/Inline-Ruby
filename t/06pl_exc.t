@@ -38,7 +38,7 @@ sub test_exception {
     # print "Stringified: $x\n";
     # print Dumper $x->backtrace;
 
-    $n++;
+    ++$n;
 
     return;
 }
