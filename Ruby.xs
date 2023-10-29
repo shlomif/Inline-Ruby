@@ -656,8 +656,7 @@ type(obj)
 	RETRIEVE_CACHE(method);
 	{
 	    VALUE rb_exception = (VALUE)SvIV(*hv_fetch(wrapper, "_rb_exc", 7, FALSE));
-	    VALUE klass = rb_funcall(rb_exception, rb_intern("class"), 0);
-	    RETVAL = rb2pl(rb_funcall(klass, rb_intern("name"), 0));
+        RETVAL = rb2pl(rb_inspect(rb_exception));
 	    STORE_CACHE(method, newSVsv(RETVAL));
 	}
     OUTPUT:
