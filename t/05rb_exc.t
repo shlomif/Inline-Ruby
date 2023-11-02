@@ -13,7 +13,7 @@ sub e {
     return unless $@;
     my $x = $@;
 
-    my $inspect = sprintf("#<%s: %s>", $x->type, $x->message);
+    my $inspect = $x->type;
 
     # TEST*$n
     # Methods:
@@ -24,7 +24,7 @@ sub e {
     # print Dumper $x->message;
 
     # TEST*$n
-    is ($x->type, $exc->[1], 'Type is right');
+    is ($inspect, sprintf("#<%s: %s>", $exc->[1], $x->message), 'Type is right');
     # print Dumper $x->type;
 
     # TEST*$n
