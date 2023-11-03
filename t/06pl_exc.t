@@ -36,7 +36,8 @@ sub test_exception {
 
     # TEST*$n
     my $str = (split /\n/, "$x")[0];
-    is ($str, $x->inspect, "Stringification for $n");
+    my $expected = (split /\n/, $x->inspect)[0];
+    is ($str, $expected, "Stringification for $n");
 
     # Not tested:
     # print Dumper $x->inspect;
