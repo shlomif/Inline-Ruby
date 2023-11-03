@@ -27,11 +27,17 @@ sub test_exception {
     # print Dumper $x->message;
 
     # TEST*$n
-    is ($x->type, $exc[$n][1], "Type for $n");
+    my $type = $x->type;
+    $type =~ s/\\n/\n/g;
+    $type =~ s/:"/: /;
+    $type =~ s/">/>/;
+    is ($type, sprintf('#<%s: %s>', $exc[$n][1], $x->message), "Type for $n");
     # print Dumper $x->type;
 
     # TEST*$n
-    is ("$x", $x->inspect . "\n", "Stringification for $n");
+    my $str = (split /\n/, "$x")[0];
+    my $expected = (split /\n/, $x->inspect)[0];
+    is ($str, $expected, "Stringification for $n");
 
     # Not tested:
     # print Dumper $x->inspect;

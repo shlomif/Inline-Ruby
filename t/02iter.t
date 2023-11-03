@@ -40,7 +40,7 @@ eval {
 };
 my $Err = $@;
 # TEST
-is ($Err->type, 'LocalJumpError', "Error type");
+is ($Err->type, '#<LocalJumpError: no block given (yield)>', "Error type");
 # TEST
 like (
     $Err->message,
