@@ -1,6 +1,6 @@
 DOCKERDIR := $(shell pwd)
 DOCKERTAG := "perl-inline-ruby"
-.PHONY: build
+.PHONY: build run
 
 build:
 	"$(DOCKERDIR)"/build.sh "$(DOCKERTAG)"
