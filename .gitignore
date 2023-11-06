@@ -1,6 +1,6 @@
 MYMETA.json
 MYMETA.yml
-Makefile
+./Makefile
 Makefile.old
 Ruby.bs
 Ruby.c
